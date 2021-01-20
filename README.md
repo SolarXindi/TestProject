@@ -1,4 +1,1 @@
-# CompareSteamGamesFromFriends
-
-
-This is a test repository
+# Test Project for Blazor WASM - Calling Steam API
