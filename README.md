@@ -1,1 +1,1 @@
-# Test Project for Blazor WASM - Calling Steam API
+# Test Project for Blazor - Calling Steam API
