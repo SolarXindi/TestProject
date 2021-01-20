@@ -1,0 +1,87 @@
+﻿@page "/ownedgames"
+
+@using CompareSteamInformation.Data
+@inject SteamAPIService steamService
+
+<h1>Steam Games</h1>
+
+<p></p>
+
+<input type="text" @bind="_steamID" />
+
+<input type="submit" @onclick=@CallAPI />
+
+@if (friends == null)
+{
+    <p><em>Loading Friends...</em></p>
+}
+else
+{
+    <div>
+        Player Count: @friends.response.players.Count()
+    </div>
+
+    <table>
+        @foreach (var player in friends.response.players.OrderBy(o => o.personaname))
+        {
+            <tr>
+                <td>
+                    <button @onclick="@(() => UpdateSteamID(player.steamid))">@player.personaname</button>
+                </td>
+                <td>
+                    <img src="@player.avatarfull" />
+                </td>
+            </tr>
+        }
+    </table>
+}
+
+@if (results == null)
+{
+    <p><em>Loading Games...</em></p>
+}
+else
+{
+    <div>
+        Games Count: @results.response.game_count
+    </div>
+
+    <table>
+        @foreach (var game in results.response.games.OrderByDescending(o => o.playtime_forever))
+        {
+            var timeSpan = TimeSpan.FromMinutes(game.playtime_forever);
+            <tr>
+                <td>
+                    @game.name
+                </td>
+                <td>
+                    Played for: @(timeSpan.Days) days @(timeSpan.Hours) hours and @(timeSpan.Minutes) minutes (Total of @timeSpan.TotalHours.ToString("D0") hours)
+                </td>
+                @*<td>
+                        <img src="" />
+                    </td>
+                    <td>
+                        <img src="data:img/png;base6,@game.img_logo_url" />
+                    </td>*@
+            </tr>
+        }
+    </table>
+}
+
+@code {
+    private SteamOwnedGamesMasterModel results;
+    private SteamPlayerMasterModel friends;
+    private string _steamID;
+
+    private async Task CallAPI()
+    {
+        results = await steamService.GetFriendsFromSteamAPI(_steamID);
+        friends = await steamService.GetSteamFriends(_steamID);
+    }
+
+    private async Task UpdateSteamID(string steamID)
+    {
+        _steamID = steamID;
+        await CallAPI();
+    }
+}
